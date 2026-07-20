@@ -28,7 +28,7 @@ def _detect_date_columns(df: pd.DataFrame, candidates: list[str]) -> list[str]:
     date_cols = []
     for col in candidates:
         try:
-            parsed = pd.to_datetime(df[col], infer_datetime_format=True, errors="coerce")
+            parsed = pd.to_datetime(df[col], errors="coerce")
             if parsed.notna().mean() > 0.8:
                 date_cols.append(col)
         except Exception:
