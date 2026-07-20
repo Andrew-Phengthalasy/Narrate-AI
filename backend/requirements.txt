@@ -1,0 +1,9 @@
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-dotenv==1.0.1
+pandas==2.2.2
+numpy==1.26.4
+pdfplumber==0.11.1
+ibm-watsonx-ai==1.1.2
+pydantic==2.7.1
+python-multipart==0.0.9
