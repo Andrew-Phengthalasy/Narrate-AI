@@ -13,9 +13,15 @@ load_dotenv()
 
 app = FastAPI(title="Narrate-AI API", version="1.0.0")
 
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    # Production: add your Vercel frontend URL after first deploy, e.g.:
+    # "https://narrate-ai.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

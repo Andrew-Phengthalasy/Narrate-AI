@@ -51,7 +51,7 @@ IBM Bob was used as the primary development tool throughout the entire project �
 
 ---
 
-## Getting Started
+## Getting Started (Local)
 
 ### Backend
 
@@ -68,11 +68,64 @@ uvicorn main:app --reload
 ```bash
 cd frontend
 npm install
-cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL if needed
+cp .env.local.example .env.local   # sets NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:8000).
+
+---
+
+## Deploying to Vercel
+
+The project is split into two separate Vercel projects — one for the backend (FastAPI) and one for the frontend (Next.js). The frontend proxies all `/api/*` requests to the backend via a Vercel rewrite, so no CORS configuration is needed in production.
+
+### 1 — Deploy the backend
+
+```bash
+cd backend
+npx vercel --prod
+```
+
+- Set the **root directory** to `backend/` when prompted (or import via Vercel dashboard with root dir = `backend`)
+- Add the following **Environment Variables** in the Vercel project settings:
+
+| Variable | Value |
+|---|---|
+| `WATSONX_API_KEY` | Your IBM Cloud API key |
+| `WATSONX_URL` | `https://us-south.ml.cloud.ibm.com` |
+| `WATSONX_PROJECT_ID` | Your Watsonx project ID |
+
+> Vercel secret refs (`@watsonx-api-key` etc.) are pre-wired in `backend/vercel.json`. Create them with:
+> ```bash
+> vercel secrets add watsonx-api-key "YOUR_KEY"
+> vercel secrets add watsonx-url "https://us-south.ml.cloud.ibm.com"
+> vercel secrets add watsonx-project-id "YOUR_PROJECT_ID"
+> ```
+
+Note the deployed backend URL (e.g. `https://narrate-ai-backend.vercel.app`).
+
+### 2 — Update the frontend rewrite
+
+Edit [`frontend/vercel.json`](frontend/vercel.json) and replace the `destination` with your actual backend URL:
+
+```json
+"destination": "https://<your-backend>.vercel.app/api/:path*"
+```
+
+### 3 — Deploy the frontend
+
+```bash
+cd frontend
+npx vercel --prod
+```
+
+- Set the **root directory** to `frontend/`
+- No environment variables needed — the rewrite handles routing.
+
+### 4 — Update CORS (optional hardening)
+
+After the frontend is deployed, add its URL to `ALLOWED_ORIGINS` in [`backend/main.py`](backend/main.py) and redeploy the backend. This is optional since the frontend proxies all requests server-side.
 
 ---
 
@@ -90,4 +143,4 @@ Open [http://localhost:3000](http://localhost:8000).
 
 | Variable | Default |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` (local dev only — not needed in production) |
