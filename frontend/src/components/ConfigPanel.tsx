@@ -18,6 +18,7 @@ export default function ConfigPanel({ audience, tone, onAudienceChange, onToneCh
         <div className="flex flex-col gap-2">
           {AUDIENCES.map((a) => (
             <button
+              type="button"
               key={a.value}
               onClick={() => onAudienceChange(a.value)}
               className={`text-left px-4 py-3 rounded-xl border transition-colors
@@ -38,6 +39,7 @@ export default function ConfigPanel({ audience, tone, onAudienceChange, onToneCh
         <div className="flex flex-col gap-2">
           {TONES.map((t) => (
             <button
+              type="button"
               key={t.value}
               onClick={() => onToneChange(t.value)}
               className={`text-left px-4 py-3 rounded-xl border transition-colors

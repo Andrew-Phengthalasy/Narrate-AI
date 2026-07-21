@@ -24,17 +24,22 @@ export default function HomePage() {
   const onParsed = (data: ParsedData, name: string) => {
     setParsed(data);
     setFilename(name);
+    setError(null);
     setStep(1);
   };
 
+  const goBack = () => {
+    setError(null);
+    setStep(0);
+  };
+
   const onGenerate = async () => {
-    if (!parsedData) return;
+    if (!parsedData || generating) return;
     setError(null);
     setGenerating(true);
     setStep(2);
     try {
       const result = await generateNarrative(parsedData, audience, tone);
-      // Persist result to sessionStorage so the result page can read it
       sessionStorage.setItem("narrateResult", JSON.stringify(result));
       router.push("/result");
     } catch (e) {
@@ -56,20 +61,33 @@ export default function HomePage() {
 
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2">
-          {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold
-                ${i < step ? "bg-indigo-600 text-white"
-                  : i === step ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400"
-                  : "bg-gray-100 text-gray-400"}`}>
-                {i < step ? "✓" : i + 1}
+          {STEPS.map((label, i) => {
+            const isComplete = i < step;
+            const isActive   = i === step;
+            // Completed steps are clickable (back-navigation) unless generating
+            const canClick   = isComplete && !generating;
+            return (
+              <div key={label} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => canClick && setStep(i as Step)}
+                  disabled={!canClick}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors
+                    ${isComplete
+                      ? "bg-indigo-600 text-white" + (canClick ? " cursor-pointer hover:bg-indigo-700" : "")
+                      : isActive
+                        ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400"
+                        : "bg-gray-100 text-gray-400"}`}
+                >
+                  {isComplete ? "✓" : i + 1}
+                </button>
+                <span className={`text-sm ${isActive ? "text-indigo-700 font-medium" : "text-gray-400"}`}>
+                  {label}
+                </span>
+                {i < STEPS.length - 1 && <div className="w-8 h-px bg-gray-200 mx-1" />}
               </div>
-              <span className={`text-sm ${i === step ? "text-indigo-700 font-medium" : "text-gray-400"}`}>
-                {label}
-              </span>
-              {i < STEPS.length - 1 && <div className="w-8 h-px bg-gray-200 mx-1" />}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Step 0 — Upload */}
@@ -85,7 +103,7 @@ export default function HomePage() {
           <section className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-800">Configure output</h2>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">{filename}</span>
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full truncate max-w-[160px]">{filename}</span>
             </div>
 
             <ConfigPanel
@@ -103,14 +121,17 @@ export default function HomePage() {
 
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => setStep(0)}
+                type="button"
+                onClick={goBack}
                 className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 ← Back
               </button>
               <button
+                type="button"
                 onClick={onGenerate}
-                className="flex-1 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                disabled={generating}
+                className="flex-1 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Generate Narrative →
               </button>

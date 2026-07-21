@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { Copy, Download } from "lucide-react";
+import { useState } from "react";
+import { Copy, Check, Download } from "lucide-react";
 import type { NarrativeResult } from "@/lib/api";
 
 interface Props {
@@ -15,11 +15,16 @@ const WEIGHT_COLORS: Record<string, string> = {
 };
 
 export default function NarrativeViewer({ result }: Props) {
-  const articleRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
 
-  const copyToClipboard = () => {
-    const text = `${result.headline}\n\n${result.narrative}`;
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(`${result.headline}\n\n${result.narrative}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. non-HTTPS) — silently ignore
+    }
   };
 
   const downloadMarkdown = () => {
@@ -29,14 +34,17 @@ export default function NarrativeViewer({ result }: Props) {
     const a = document.createElement("a");
     a.href = url;
     a.download = "narrative.md";
+    // Must be in the DOM for Firefox to trigger the download
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
   return (
     <div className="space-y-8">
       {/* Article */}
-      <div ref={articleRef} className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-6">
           {result.headline}
         </h1>
@@ -47,39 +55,50 @@ export default function NarrativeViewer({ result }: Props) {
       </div>
 
       {/* Insights panel */}
-      <div>
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-          Key Insights Driving This Narrative
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {result.insights.map((insight) => (
-            <div
-              key={insight.rank}
-              className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-2"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium text-gray-800 leading-snug">{insight.finding}</p>
-                <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${WEIGHT_COLORS[insight.emotional_weight]}`}>
-                  {insight.emotional_weight}
-                </span>
+      {result.insights.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            Key Insights Driving This Narrative
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {result.insights.map((insight, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-2"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-medium text-gray-800 leading-snug">{insight.finding}</p>
+                  <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${WEIGHT_COLORS[insight.emotional_weight] ?? WEIGHT_COLORS.low}`}>
+                    {insight.emotional_weight}
+                  </span>
+                </div>
+                <p className="text-xs text-indigo-700 font-mono bg-indigo-50 rounded px-2 py-1">
+                  {insight.data_evidence}
+                </p>
+                <p className="text-xs text-gray-500">{insight.significance}</p>
               </div>
-              <p className="text-xs text-indigo-700 font-mono bg-indigo-50 rounded px-2 py-1">
-                {insight.data_evidence}
-              </p>
-              <p className="text-xs text-gray-500">{insight.significance}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Export actions */}
       <div className="flex gap-3">
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors"
         >
-          <Copy className="w-4 h-4" />
-          Copy to clipboard
+          {copied ? (
+            <>
+              <Check className="w-4 h-4 text-green-600" />
+              <span className="text-green-600">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              Copy to clipboard
+            </>
+          )}
         </button>
         <button
           onClick={downloadMarkdown}

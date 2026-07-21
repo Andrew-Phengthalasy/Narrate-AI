@@ -18,7 +18,15 @@ export default function ResultPage() {
     setResult(JSON.parse(raw));
   }, [router]);
 
-  if (!result) return null;
+  // Show a spinner while sessionStorage is being read on the first render tick
+  // rather than flashing a blank page.
+  if (!result) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex flex-col items-center py-16 px-4">
@@ -26,7 +34,11 @@ export default function ResultPage() {
 
         <div className="flex items-center justify-between">
           <button
-            onClick={() => router.push("/")}
+            type="button"
+            onClick={() => {
+              sessionStorage.removeItem("narrateResult");
+              router.push("/");
+            }}
             className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1"
           >
             ← New narrative
