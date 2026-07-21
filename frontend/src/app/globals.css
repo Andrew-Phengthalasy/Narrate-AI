@@ -1,24 +1,97 @@
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:          #f8f9fc;
+  --surface:     #ffffff;
+  --border:      #e4e7ed;
+  --border-soft: #f0f2f7;
+  --text:        #0f1117;
+  --text-muted:  #6b7280;
+  --text-faint:  #9ca3af;
+  --accent:      #4f46e5;          /* indigo-600 */
+  --accent-dark: #4338ca;          /* indigo-700 */
+  --accent-bg:   #eef2ff;          /* indigo-50  */
+  --accent-ring: #a5b4fc;          /* indigo-300 */
+  --violet:      #7c3aed;          /* violet-600 */
+  --violet-bg:   #f5f3ff;          /* violet-50  */
+  --shadow-sm:   0 1px 3px 0 rgb(0 0 0 / .07), 0 1px 2px -1px rgb(0 0 0 / .07);
+  --shadow-md:   0 4px 12px -2px rgb(0 0 0 / .09), 0 2px 6px -2px rgb(0 0 0 / .06);
+  --shadow-lg:   0 12px 32px -4px rgb(0 0 0 / .11), 0 4px 12px -4px rgb(0 0 0 / .07);
+  --radius-card: 1rem;
+  --radius-btn:  0.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
+/* ── Base ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ── Subtle dot-grid background ─────────────────────────────────────────────── */
+.bg-grid {
+  background-color: var(--bg);
+  background-image: radial-gradient(circle, #c7d2fe 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Primary button ─────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border-radius: var(--radius-btn);
+  border: none;
+  cursor: pointer;
+  transition: background 150ms, box-shadow 150ms, opacity 150ms;
+  box-shadow: 0 1px 3px rgb(79 70 229 / .35);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+  box-shadow: 0 2px 8px rgb(79 70 229 / .40);
+}
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Ghost button ───────────────────────────────────────────────────────────── */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+.btn-ghost:hover { background: var(--bg); color: var(--text); border-color: #d1d5db; }
+
+/* ── Focus ring ─────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 2px;
 }

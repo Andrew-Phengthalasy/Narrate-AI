@@ -9,9 +9,13 @@ interface Props {
 }
 
 const WEIGHT_COLORS: Record<string, string> = {
-  high:   "bg-amber-100 text-amber-800 border-amber-300",
-  medium: "bg-sky-100 text-sky-800 border-sky-300",
-  low:    "bg-gray-100 text-gray-600 border-gray-300",
+  high:   "bg-amber-50 text-amber-700 border-amber-200",
+  medium: "bg-sky-50 text-sky-700 border-sky-200",
+  low:    "bg-gray-100 text-gray-500 border-gray-200",
+};
+
+const WEIGHT_LABELS: Record<string, string> = {
+  high: "High impact", medium: "Medium", low: "Low",
 };
 
 export default function NarrativeViewer({ result }: Props) {
@@ -23,7 +27,7 @@ export default function NarrativeViewer({ result }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API unavailable (e.g. non-HTTPS) — silently ignore
+      // Clipboard API unavailable — silently ignore
     }
   };
 
@@ -34,7 +38,6 @@ export default function NarrativeViewer({ result }: Props) {
     const a = document.createElement("a");
     a.href = url;
     a.download = "narrative.md";
-    // Must be in the DOM for Firefox to trigger the download
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -42,72 +45,80 @@ export default function NarrativeViewer({ result }: Props) {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Article */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900 leading-tight mb-6">
-          {result.headline}
-        </h1>
-        <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {result.narrative}
+    <div className="space-y-6">
+
+      {/* ── Article card ── */}
+      <div className="card overflow-hidden">
+        {/* Accent top bar */}
+        <div className="h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400" />
+        <div className="p-8 sm:p-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-1">
+            {result.headline}
+          </h1>
+          <div className="h-px bg-gray-100 my-5" />
+          <div className="text-gray-600 leading-[1.8] text-[15px] whitespace-pre-wrap">
+            {result.narrative}
+          </div>
+          <p className="mt-8 text-xs text-gray-300 font-mono">{result.word_count} words</p>
         </div>
-        <p className="mt-6 text-xs text-gray-400">{result.word_count} words</p>
       </div>
 
-      {/* Insights panel */}
+      {/* ── Insights grid ── */}
       {result.insights.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            Key Insights Driving This Narrative
-          </h2>
+          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 px-1">
+            Key Insights
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {result.insights.map((insight, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-2"
+                className="rounded-xl border border-gray-200 bg-white p-4 space-y-2.5 hover:border-gray-300 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-gray-800 leading-snug">{insight.finding}</p>
-                  <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${WEIGHT_COLORS[insight.emotional_weight] ?? WEIGHT_COLORS.low}`}>
-                    {insight.emotional_weight}
+                  <div className="flex items-start gap-2.5">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-bold flex items-center justify-center mt-0.5">
+                      {i + 1}
+                    </span>
+                    <p className="text-sm font-medium text-gray-800 leading-snug">{insight.finding}</p>
+                  </div>
+                  <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${WEIGHT_COLORS[insight.emotional_weight] ?? WEIGHT_COLORS.low}`}>
+                    {WEIGHT_LABELS[insight.emotional_weight] ?? insight.emotional_weight}
                   </span>
                 </div>
-                <p className="text-xs text-indigo-700 font-mono bg-indigo-50 rounded px-2 py-1">
+                <p className="text-xs text-indigo-600 font-mono bg-indigo-50 rounded-lg px-2.5 py-1.5 leading-relaxed">
                   {insight.data_evidence}
                 </p>
-                <p className="text-xs text-gray-500">{insight.significance}</p>
+                <p className="text-xs text-gray-400 leading-relaxed">{insight.significance}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Export actions */}
-      <div className="flex gap-3">
+      {/* ── Export row ── */}
+      <div className="flex gap-2.5">
         <button
+          type="button"
           onClick={copyToClipboard}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors"
+          className="btn-ghost"
         >
           {copied ? (
-            <>
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="text-green-600">Copied!</span>
-            </>
+            <><Check className="w-4 h-4 text-green-600" /><span className="text-green-600">Copied!</span></>
           ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              Copy to clipboard
-            </>
+            <><Copy className="w-4 h-4" />Copy</>
           )}
         </button>
         <button
+          type="button"
           onClick={downloadMarkdown}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          className="btn-primary"
         >
           <Download className="w-4 h-4" />
           Download .md
         </button>
       </div>
+
     </div>
   );
 }

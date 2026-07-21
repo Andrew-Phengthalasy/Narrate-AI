@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://narrate-ai-backend-d6aw8nz5p-andrew-phengthalasy-s-projects.vercel.app/api/:path*"
+      "destination": "https://narrate-ai-backend.vercel.app/api/:path*"
     }
   ]
 }

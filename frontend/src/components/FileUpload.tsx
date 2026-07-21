@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Upload, FileText } from "lucide-react";
+import { Upload } from "lucide-react";
 import type { ParsedData } from "@/lib/api";
 import { parseFile } from "@/lib/api";
 
@@ -79,8 +79,12 @@ export default function FileUpload({ onParsed }: Props) {
         onDragOver={(e) => e.preventDefault()}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        className={`flex flex-col items-center justify-center gap-3 w-full h-48 rounded-xl border-2 border-dashed cursor-pointer transition-colors
-          ${dragging ? "border-indigo-500 bg-indigo-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"}`}
+        className={[
+          "flex flex-col items-center justify-center gap-3 w-full h-44 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-150",
+          dragging
+            ? "border-indigo-400 bg-indigo-50 scale-[1.01]"
+            : "border-gray-200 bg-gray-50/60 hover:bg-gray-50 hover:border-gray-300",
+        ].join(" ")}
       >
         <input
           type="file"
@@ -90,32 +94,35 @@ export default function FileUpload({ onParsed }: Props) {
           disabled={loading}
         />
         {loading && pending ? (
-          <div className="flex flex-col items-center gap-2 text-gray-500">
+          <div className="flex flex-col items-center gap-2">
             <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Parsing {pending.name}…</span>
+            <span className="text-sm text-gray-600 font-medium">{pending.name}</span>
             <span className="text-xs text-gray-400">{formatBytes(pending.size)}</span>
           </div>
         ) : (
           <>
-            <Upload className="w-8 h-8 text-gray-400" />
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+              <Upload className="w-5 h-5 text-indigo-500" />
+            </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-700">Drop a file or click to browse</p>
-              <p className="text-xs text-gray-400 mt-1">CSV, PDF, or plain text · max 10 MB</p>
+              <p className="text-sm font-medium text-gray-700">Drop a file or <span className="text-indigo-600">click to browse</span></p>
+              <p className="text-xs text-gray-400 mt-0.5">CSV, PDF, or plain text · max 10 MB</p>
             </div>
           </>
         )}
       </label>
 
       {error && (
-        <p className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        <div className="mt-2 flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+          <span className="shrink-0 mt-0.5">⚠</span>
+          <span>{error}</span>
+        </div>
       )}
 
       {/* Paste plain text fallback */}
       <details className="mt-3">
-        <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 select-none">
-          Or paste raw text instead
+        <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600 select-none transition-colors">
+          Or paste raw text instead ↓
         </summary>
         <PasteBox onParsed={onParsed} />
       </details>
@@ -144,23 +151,23 @@ function PasteBox({ onParsed }: Props) {
   };
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
+    <div className="mt-3 flex flex-col gap-2">
       <textarea
-        className="w-full h-32 text-sm border border-gray-200 rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-full h-32 text-sm border border-gray-200 rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-gray-50 placeholder:text-gray-400"
         placeholder="Paste CSV rows, report text, or any raw data…"
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <span className="shrink-0">⚠</span><span>{error}</span>
+        </div>
       )}
       <button
         type="button"
         onClick={submit}
         disabled={loading || !text.trim()}
-        className="self-end px-4 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded-lg disabled:opacity-50 hover:bg-indigo-700"
+        className="btn-primary self-end h-9 px-4 text-xs"
       >
         {loading ? "Parsing…" : "Use this text"}
       </button>
