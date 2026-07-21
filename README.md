@@ -2,7 +2,7 @@
 
 > **IBM Bob Challenge — July 2025**  ·  Theme: *Reimagine Creative Industries with AI*
 
-**Turn raw data into journalist-quality prose in seconds.** Upload a CSV, PDF, or paste text — choose your audience and tone — and watch IBM Granite produce a polished, insight-driven narrative automatically.
+**Turn raw data into journalist-quality prose in seconds.** Upload a CSV, PDF, or paste text, then choose your audience and tone and watch IBM Granite produce a polished, insight-driven narrative automatically.
 
 ---
 
@@ -10,9 +10,9 @@
 
 Data is everywhere, but insight is rare.
 
-Analysts, researchers, and executives spend hours converting spreadsheets and reports into readable summaries for stakeholders who will never open a pivot table. That translation — from numbers to narrative — is slow, expensive, and inconsistent. A single data story can take a skilled analyst half a day to write; a newsroom team cannot sustain that pace across hundreds of datasets.
+Analysts, researchers, and executives spend hours converting spreadsheets and reports into readable summaries for stakeholders who will never open a pivot table. That translation from numbers to narrative is slow, expensive, and inconsistent. A single data story can take a skilled analyst half a day to write; a newsroom team cannot sustain that pace across hundreds of datasets.
 
-Narrate-AI eliminates that gap. It automates the entire journey from raw data to publication-ready prose — analysis, insight ranking, and writing — in a single pipeline that takes seconds, not hours.
+NarrateAI eliminates that gap. It automates the entire journey from raw data to publication-ready prose analysis, insight ranking, and writing in a single pipeline that takes seconds, not hours.
 
 ---
 
@@ -27,7 +27,7 @@ A full-stack AI web application with a three-step pipeline:
 | **Generate** | A three-stage AI chain runs end-to-end and returns a structured narrative |
 | **Export** | Download as Markdown or copy to clipboard |
 
-The output is not a bullet-point summary. It is a full prose narrative — the kind a journalist or data analyst would write — with a headline, introduction, insight paragraphs, and a closing statement, all calibrated to the selected audience and tone.
+The output is not a bullet-point summary. It is a full prose narrative, the kind a journalist or data analyst would write with a headline, introduction, insight paragraphs, and a closing statement, all calibrated to the selected audience and tone.
 
 ---
 
@@ -35,9 +35,9 @@ The output is not a bullet-point summary. It is a full prose narrative — the k
 
 **Reimagine Creative Industries with AI**
 
-Writing has always been the bottleneck between data and decisions. Every earnings report, research study, and market analysis needs a human storyteller to cross that gap — someone who can look at a table of numbers and say *what it means*.
+Writing has always been the bottleneck between data and decisions. Every earnings report, research study, and market analysis needs a human storyteller to cross that gap; someone who can look at a table of numbers and say *what it means*.
 
-Narrate-AI makes that skill available to anyone, at any scale. It does not replace the journalist or analyst; it removes the mechanical part of their job — so they can spend their time on judgment, not transcription.
+NarrateAI makes that skill available to anyone, at any scale. It does not replace the journalist or analyst; it removes the mechanical part of their job so they can spend their time on judgment, not transcription.
 
 This directly reimagines the data journalism and communications workflow: a single tool replacing what would otherwise require a senior writer, a data analyst, and multiple revision cycles.
 
