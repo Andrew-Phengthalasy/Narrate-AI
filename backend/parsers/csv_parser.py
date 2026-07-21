@@ -1,11 +1,23 @@
 import io
 import pandas as pd
-from .preprocessor import compute_statistics
+try:
+    from .preprocessor import compute_statistics  # package import (local dev)
+except ImportError:
+    from preprocessor import compute_statistics   # flat import (Vercel)
+
+
+# Cap rows read to avoid exhausting lambda memory on huge CSVs.
+# Statistics are computed on this sample; shape.rows reflects the true count.
+_MAX_ROWS = 5_000
 
 
 def parse_csv(content: bytes) -> dict:
     """Parse CSV bytes into a structured data dict with statistics."""
-    df = pd.read_csv(io.BytesIO(content))
+    # First pass: get true row count — count non-empty lines minus the header.
+    # Using splitlines() avoids iterating BytesIO chunks as arbitrary byte spans.
+    total_rows = max(sum(1 for ln in content.splitlines() if ln.strip()) - 1, 0)
+
+    df = pd.read_csv(io.BytesIO(content), nrows=_MAX_ROWS)
     df.dropna(how="all", inplace=True)
 
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
@@ -14,13 +26,14 @@ def parse_csv(content: bytes) -> dict:
 
     return {
         "source_type": "csv",
-        "shape": {"rows": len(df), "columns": len(df.columns)},
+        "shape": {"rows": total_rows, "columns": len(df.columns)},
+        "sampled_rows": len(df),
         "columns": df.columns.tolist(),
         "numeric_columns": numeric_cols,
         "categorical_columns": categorical_cols,
         "date_columns": date_cols,
         "sample_rows": _serialisable_rows(df.head(5)),
-        "statistics": compute_statistics(df, numeric_cols),
+        "statistics": compute_statistics(df, numeric_cols, date_cols),
     }
 
 

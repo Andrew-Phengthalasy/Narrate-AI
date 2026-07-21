@@ -129,12 +129,6 @@ def _target_word_count(audience: str, tone: str) -> int:
     return base
 
 
-def _n_insights(structured_data: dict) -> int:
-    """Return 3 insights for small datasets (≤3 numeric columns), 5 for richer ones."""
-    numeric_cols = structured_data.get("numeric_columns", [])
-    return 3 if len(numeric_cols) <= 3 else 5
-
-
 def build_summarize_messages(structured_data: dict) -> list[dict]:
     return [
         {"role": "system", "content": SUMMARIZE_SYSTEM},
