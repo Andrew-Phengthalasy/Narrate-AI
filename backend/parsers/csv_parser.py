@@ -19,16 +19,38 @@ def parse_csv(content: bytes) -> dict:
         "numeric_columns": numeric_cols,
         "categorical_columns": categorical_cols,
         "date_columns": date_cols,
-        "sample_rows": df.head(5).fillna("").to_dict(orient="records"),
+        "sample_rows": _serialisable_rows(df.head(5)),
         "statistics": compute_statistics(df, numeric_cols),
     }
+
+
+def _serialisable_rows(df: pd.DataFrame) -> list[dict]:
+    """Convert a DataFrame slice to plain Python dicts safe for JSON serialisation.
+
+    Fills NaN with None and casts numpy scalar types (int64, float64, etc.) to
+    their native Python equivalents so FastAPI's JSON encoder never chokes.
+    """
+    rows = []
+    for record in df.to_dict(orient="records"):
+        rows.append({
+            k: (None if (isinstance(v, float) and v != v) else  # NaN check
+                v.item() if hasattr(v, "item") else             # numpy scalars
+                str(v) if hasattr(v, "isoformat") else          # Timestamps
+                v)
+            for k, v in record.items()
+        })
+    return rows
 
 
 def _detect_date_columns(df: pd.DataFrame, candidates: list[str]) -> list[str]:
     date_cols = []
     for col in candidates:
         try:
-            parsed = pd.to_datetime(df[col], errors="coerce")
+            series = df[col].dropna()
+            # Require at least 3 non-null values to avoid false positives
+            if len(series) < 3:
+                continue
+            parsed = pd.to_datetime(series, errors="coerce")
             if parsed.notna().mean() > 0.8:
                 date_cols.append(col)
         except Exception:

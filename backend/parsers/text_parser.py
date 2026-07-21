@@ -6,7 +6,7 @@ def parse_text(raw: str) -> dict:
     cleaned = re.sub(r"\r\n", "\n", raw)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned.strip())
 
-    lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
     paragraphs = cleaned.split("\n\n")
 
     return {

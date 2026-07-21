@@ -15,8 +15,7 @@ app = FastAPI(title="Narrate-AI API", version="1.0.0")
 
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    # Production: add your Vercel frontend URL after first deploy, e.g.:
-     "https://narrate-ai-frontend-1v8ir87qp-andrew-phengthalasy-s-projects.vercel.app",
+    "https://narrate-ai-frontend-1v8ir87qp-andrew-phengthalasy-s-projects.vercel.app",
 ]
 
 app.add_middleware(
@@ -39,6 +38,11 @@ class GenerateResponse(BaseModel):
     narrative: str
     insights: list[dict]
     word_count: int
+
+
+@app.get("/api/health")
+async def health():
+    return {"status": "ok"}
 
 
 @app.post("/api/parse")

@@ -1,4 +1,5 @@
-import numpy as np
+import math
+
 import pandas as pd
 
 
@@ -24,7 +25,13 @@ def compute_statistics(df: pd.DataFrame, numeric_cols: list[str]) -> dict:
         if mid > 0:
             first_half_mean = series.iloc[:mid].mean()
             second_half_mean = series.iloc[mid:].mean()
-            if first_half_mean != 0:
+            # Guard against NaN means (e.g. half-series with all-NaN values)
+            # and zero division before computing percentage change.
+            if (
+                first_half_mean != 0
+                and not math.isnan(first_half_mean)
+                and not math.isnan(second_half_mean)
+            ):
                 pct_change = (second_half_mean - first_half_mean) / abs(first_half_mean)
                 if pct_change > 0.05:
                     trend = "increasing"
