@@ -232,7 +232,7 @@ Not required in production — the Vercel rewrite handles routing without exposi
 Narrate-AI/
 ├── backend/
 │   ├── api/
-│   │   └── index.py          # Vercel serverless entry point
+│   │   └── index.py          
 │   ├── parsers/
 │   │   ├── csv_parser.py     # Pandas CSV → structured summary
 │   │   ├── pdf_parser.py     # pdfplumber PDF → text + metadata
