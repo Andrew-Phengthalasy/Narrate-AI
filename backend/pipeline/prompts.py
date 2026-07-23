@@ -29,59 +29,36 @@ TONE_DESCRIPTIONS = {
 }
 
 # ---------------------------------------------------------------------------
-# Step 1 — Data Summarizer
+# Step 1+2 Combined — Data Analyzer + Insight Extractor
 # ---------------------------------------------------------------------------
-SUMMARIZE_SYSTEM = """\
-You are a data analyst. Your sole job is to extract structure from the provided dataset metadata.
+COMBINED_SYSTEM = """\
+You are a data analyst and editorial expert. Your job is to analyze a dataset and extract the most compelling insights for a target audience.
 Output ONLY a valid JSON object — no prose, no markdown fences, no explanation.
 """
 
-SUMMARIZE_HUMAN = """\
+COMBINED_HUMAN = """\
 Dataset metadata:
 {structured_data}
+
+Target audience: {audience_description}
 
 Produce a JSON object with EXACTLY these keys:
 {{
   "topic": "<1-sentence description of what this dataset is about>",
-  "data_shape": "<concise description of dataset dimensions, e.g. '120 rows × 8 columns, 5 numeric and 3 categorical'>",
   "key_metrics": ["<metric name>", ...],
-  "anomalies": [
-    {{"metric": "<name>", "description": "<what is unusual>", "value": "<specific number>"}},
-    ...
-  ],
-  "trends": [
-    {{"metric": "<name>", "direction": "increasing|decreasing|stable", "description": "<1-sentence>"}},
-    ...
-  ],
-  "overall_summary": "<2-3 sentences summarising the dataset at a high level>"
-}}
-"""
-
-# ---------------------------------------------------------------------------
-# Step 2 — Insight Extractor
-# ---------------------------------------------------------------------------
-INSIGHT_SYSTEM = """\
-You are an editorial analyst. Given a structured data summary and a target audience,
-identify the most compelling and newsworthy insights.
-Output ONLY a valid JSON array — no prose, no markdown fences.
-"""
-
-INSIGHT_HUMAN = """\
-Data summary:
-{data_summary}
-
-Target audience: {audience_description}
-
-Identify the {n_insights} most important insights for this audience. For each insight produce:
-{{
-  "rank": <1-{n_insights}>,
-  "finding": "<1 clear sentence stating the finding>",
-  "significance": "<why this matters to the target audience>",
-  "data_evidence": "<specific number, percentage, or comparison that proves this>",
-  "emotional_weight": "high|medium|low"
+  "overall_summary": "<2-3 sentences summarising the dataset>",
+  "insights": [
+    {{
+      "rank": 1,
+      "finding": "<1 clear sentence stating the finding>",
+      "significance": "<why this matters to the target audience>",
+      "data_evidence": "<specific number or comparison that proves this>",
+      "emotional_weight": "high|medium|low"
+    }}
+  ]
 }}
 
-Return a JSON array of {n_insights} such objects.
+Include {n_insights} insights total.
 """
 
 # ---------------------------------------------------------------------------
@@ -116,11 +93,6 @@ Brief (insights):
 
 
 def _target_word_count(audience: str, tone: str) -> int:
-    """Return the target word count based on audience and tone.
-
-    social_media always stays short regardless of tone.
-    analytical tone adds 100 words for all other audiences.
-    """
     if audience == "social_media":
         return 250
     base = 500
@@ -129,21 +101,12 @@ def _target_word_count(audience: str, tone: str) -> int:
     return base
 
 
-def build_summarize_messages(structured_data: dict) -> list[dict]:
-    return [
-        {"role": "system", "content": SUMMARIZE_SYSTEM},
-        {"role": "user", "content": SUMMARIZE_HUMAN.format(
-            structured_data=json.dumps(structured_data, indent=2)
-        )},
-    ]
-
-
-def build_insight_messages(data_summary: dict, audience: str, n_insights: int) -> list[dict]:
+def build_combined_messages(structured_data: dict, audience: str, n_insights: int) -> list[dict]:
     audience_desc = AUDIENCE_DESCRIPTIONS.get(audience, AUDIENCE_DESCRIPTIONS["general_public"])
     return [
-        {"role": "system", "content": INSIGHT_SYSTEM},
-        {"role": "user", "content": INSIGHT_HUMAN.format(
-            data_summary=json.dumps(data_summary, indent=2),
+        {"role": "system", "content": COMBINED_SYSTEM},
+        {"role": "user", "content": COMBINED_HUMAN.format(
+            structured_data=json.dumps(structured_data, indent=2),
             audience_description=audience_desc,
             n_insights=n_insights,
         )},

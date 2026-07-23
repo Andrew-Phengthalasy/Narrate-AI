@@ -1,9 +1,6 @@
 import io
 import pandas as pd
-try:
-    from .preprocessor import compute_statistics  # package import (local dev)
-except ImportError:
-    from preprocessor import compute_statistics   # flat import (Vercel)
+from pipeline.preprocessor import compute_statistics
 
 
 # Cap rows read to avoid exhausting lambda memory on huge CSVs.
